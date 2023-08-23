@@ -27,16 +27,10 @@ RUN set -ex \
     's/^session\s+required\s+pam_loginuid.so$/session optional pam_loginuid.so/' \
     /etc/pam.d/cron
 
-#ADD default.cron /etc/cron.d/default
+ADD ./test.php /var/www/test.php
 ADD default.cron /var/spool/cron/crontabs/root
-#RUN chmod 0644 /etc/cron.d/default
 RUN chmod 0644 /var/spool/cron/crontabs/root
-
 RUN touch /var/log/cron.log
 RUN usermod -u 1000 www-data
-
-CMD cron && tail -f /var/log/cron.log
-
-
-
-
+RUN /usr/bin/crontab /var/spool/cron/crontabs/root
+CMD bash -c cron -f && tail -f /var/log/cron.log
