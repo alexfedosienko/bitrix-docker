@@ -1,90 +1,55 @@
-version: "3"
-
-volumes:
-  site-mysql:
-
 services:
   nginx:
     build: ./nginx
-    links:
-      - php-fpm:php
+    restart: always
+    volumes:
+      - ./logs/nginx/:/var/log/nginx/
+      - ./www/:/var/www/public
+    networks:
+      - site
+      - proxynet
+    environment:
+      TZ: Asia/Yekaterinburg
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.site.tls.certresolver=le"
+      - "traefik.http.routers.site.rule=Host(`${SITE_DOMAIN}`) || Host(`www.${SITE_DOMAIN}`)"
+      - "traefik.http.routers.site.tls.domains[0].main=${SITE_DOMAIN}"
+      - "traefik.http.routers.site.tls.domains[0].sans=www.${SITE_DOMAIN}"
+      
+  php: 
+    build: ./${PHP_VERSION}
+    restart: always
     networks:
       - site
     volumes:
-      - ./data/logs/nginx:/var/log/nginx
-      - ./data/site:/var/www/site
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    restart: unless-stopped
+      - ./logs/php/:/var/log/php/
+      - ./www/:/var/www/public
 
-  php-fpm:
-    build: ./php74-fpm
-    links:
-      - mysql
+  cron: 
+    build: ./${PHP_VERSION}
+    restart: always
+    command: cron -f && tail -f /var/log/cron.log
     networks:
       - site
     volumes:
-      - ./data/site:/var/www/site
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    restart: unless-stopped
-
-  php-cli:
-    build: ./php74-cli
-    links:
-      - mysql
-    networks:
-      - site
-    volumes:
-      - ./data/site:/var/www/site
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    restart: unless-stopped
+      - ./logs/cron:/var/log
+      - ./www/:/var/www/public
 
   mysql:
     build: ./mysql
+    restart: always
     environment:
-      MYSQL_DATABASE: bitrixdb
-      MYSQL_USER: bitrixdb
-      MYSQL_PASSWORD: yjl3pPmdeM
-      MYSQL_ROOT_PASSWORD: yjl3pPmdeM
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
     networks:
       - site
     volumes:
-      - site-mysql:/var/lib/mysql
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    restart: unless-stopped
-
-  sphinx:
-    build: ./sphinx
-    links:
-      - mysql
-    depends_on:
-      - mysql
-    volumes:
-        - /etc/localtime:/etc/localtime:ro
-    networks:
-        - site
-    restart: unless-stopped
-
-  nginx-proxy:
-    image: "jc21/nginx-proxy-manager:latest"
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "81:81"
-      - "443:443"
-    networks:
-      - site
-    volumes:
-      - ./data/npm:/data
-      - ./data/letsencrypt:/etc/letsencrypt
+      - ./data/mysql:/var/lib/mysql
 
 networks:
   site:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 10.0.0.0/8
+  proxynet:
+    external: true

@@ -1,0 +1,34 @@
+services:
+  proxy:
+    image: traefik:v2.11
+    container_name: proxy
+    restart: always
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker"
+      # - "--log.level=DEBUG"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.network=proxynet"
+      #Entrypoints
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.https.address=:443"
+      #SSL Redirects
+      - "--entrypoints.http.http.redirections.entrypoint.to=https"
+      - "--entrypoints.http.http.redirections.entrypoint.scheme=https"
+      #SSL Let'sEncrypt
+      - "--entrypoints.https.http.tls.certResolver=le"
+      - "--certificatesresolvers.le.acme.tlschallenge=true"
+      - "--certificatesresolvers.le.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/letsencrypt:/letsencrypt
+
+networks:
+  default:
+    name: proxynet
+    external: true
