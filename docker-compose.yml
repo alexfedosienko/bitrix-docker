@@ -12,10 +12,10 @@ services:
       TZ: Asia/Yekaterinburg
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.site.tls.certresolver=le"
-      - "traefik.http.routers.site.rule=Host(`${SITE_DOMAIN}`) || Host(`www.${SITE_DOMAIN}`)"
-      - "traefik.http.routers.site.tls.domains[0].main=${SITE_DOMAIN}"
-      - "traefik.http.routers.site.tls.domains[0].sans=www.${SITE_DOMAIN}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls.certresolver=le"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.rule=Host(`${SITE_DOMAIN}`) || Host(`www.${SITE_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls.domains[0].main=${SITE_DOMAIN}"
+      - "traefik.http.routers.${TRAEFIK_ROUTER_NAME}.tls.domains[0].sans=www.${SITE_DOMAIN}"
       
   php: 
     build: ./${PHP_VERSION}
