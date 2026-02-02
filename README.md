@@ -9,11 +9,12 @@
 
 1. Создать пользователя bitrix ```adduser bitrix```
 2. Добавить пользователя в группу docker ```usermod -aG docker bitrix```
-3.  Cклонировать репозиторий `git clone https://github.com/alexfedosienko/bitrix-docker.git SITENAME_FOLDER`
+3. Cклонировать репозиторий `git clone https://github.com/alexfedosienko/bitrix-docker.git SITENAME_FOLDER`
 SITENAME_FOLDER заменить на директорию в которой будет расположен Ваш сайт.
 4. Переходим в директорию SITENAME_FOLDER `cd SITENAME_FOLDER`
 5. Копируем и редактируем файл .env `cp .env_example .env && nano .env`
-```
+6. Установить make ```apt install make```
+
 LETSENCRYPT_EMAIL= # Почта для регистрации SSL сертификатов Let's Encrypt
 SITE_DOMAIN= # Указываем название домена для сайта
 DB_NAME= # Название базы данных
