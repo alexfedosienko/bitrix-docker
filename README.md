@@ -7,10 +7,12 @@
 Для сервера на Ubuntu это можно сделать с помощью команды
 `wget https://raw.githubusercontent.com/alexfedosienko/setup-docker-and-portainer/docker/setup.sh -O setup-docker.sh && sh setup-docker.sh`
 
-1.  Cклонировать репозиторий `git clone https://github.com/alexfedosienko/bitrix-docker.git SITENAME_FOLDER`
+1. Создать пользователя bitrix ```adduser bitrix```
+2. Добавить пользователя в группу docker ```usermod -aG docker bitrix```
+3.  Cклонировать репозиторий `git clone https://github.com/alexfedosienko/bitrix-docker.git SITENAME_FOLDER`
 SITENAME_FOLDER заменить на директорию в которой будет расположен Ваш сайт.
-2. Переходим в директорию SITENAME_FOLDER `cd SITENAME_FOLDER`
-3. Копируем и редактируем файл .env `cp .env_example .env && nano .env`
+4. Переходим в директорию SITENAME_FOLDER `cd SITENAME_FOLDER`
+5. Копируем и редактируем файл .env `cp .env_example .env && nano .env`
 ```
 LETSENCRYPT_EMAIL= # Почта для регистрации SSL сертификатов Let's Encrypt
 SITE_DOMAIN= # Указываем название домена для сайта
